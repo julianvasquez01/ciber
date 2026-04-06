@@ -1,25 +1,24 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #FAFAFA;
-  --foreground: #09090B;
-  --primary: #18181B;
-  --secondary: #3F3F46;
-  --accent: #e11d48; /* rose-600 */
-  --muted: #71717A;
-  --border: #E4E4E7;
+  --background: #FFFFFF;
+  --foreground: #111827;
+  --primary: #1F2937;
+  --secondary: #4B5563;
+  --accent: #FCA311;
+  --muted: #6B7280;
+  --border: #E5E7EB;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #050505; /* Blackish/very dark tone */
-    --foreground: #FAFAFA;
-    --primary: #FAFAFA;
-    --secondary: #E4E4E7;
-    --accent: #f43f5e; /* rose-500 */
-    --muted: #A1A1AA;
-    --border: #27272A;
-  }
+.dark {
+  --background: #14213D;
+  --foreground: #FFFFFF;
+  --primary: #F3F4F6;
+  --secondary: #E5E5E5;
+  --accent: #FCA311;
+  --muted: #E5E5E5;
+  --border: rgba(252, 163, 17, 0.15);
 }
 
 @theme inline {
@@ -43,6 +42,22 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* ============================================= */
+/* Grain overlay cinematográfico global          */
+/* ============================================= */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 @keyframes fadeInUp {
@@ -87,4 +102,96 @@ html {
 
 .stagger-4 {
   animation-delay: 0.4s;
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(120px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(120px) rotate(-360deg);
+  }
+}
+
+@keyframes orbit-reverse {
+  from {
+    transform: rotate(360deg) translateX(160px) rotate(-360deg);
+  }
+  to {
+    transform: rotate(0deg) translateX(160px) rotate(0deg);
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -200% 50%; }
+}
+
+/* ============================================= */
+/* Custom Cursor (solo desktop)                  */
+/* ============================================= */
+@media (min-width: 769px) {
+  body, a, button, input, textarea {
+    cursor: none !important;
+  }
+}
+
+.custom-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #FCA311;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  mix-blend-mode: difference;
+  will-change: left, top;
+}
+
+.custom-cursor-dot {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: #FCA311;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10001;
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+}
+
+.custom-cursor.hover {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(252, 163, 17, 0.1);
+}
+
+@media (max-width: 768px) {
+  .custom-cursor,
+  .custom-cursor-dot {
+    display: none !important;
+  }
+}
+
+/* ============================================= */
+/* Project Card 3D Tilt                          */
+/* ============================================= */
+.project-card-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;
+}
+
+.project-card-tilt:hover {
+  box-shadow: 0 8px 40px rgba(252, 163, 17, 0.15);
 }
