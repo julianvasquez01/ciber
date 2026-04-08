@@ -1,0 +1,11 @@
+{
+  "name": "Python DevContainer",
+  "image": "ghcr.io/devcontainers/templates/typescript-node:5.0.0",
+  "customizations": {
+    "vscode": {
+      "extensions":"esbenp.prettier-vscode" [
+        
+      ]
+    }
+  }
+}
