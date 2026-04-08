@@ -1,10 +1,106 @@
 'use client';
-// Indica que este archivo se ejecutará del lado del cliente (Client Component) 
+// Indica que este archivo se ejecutará del lado del cliente (Client Component)
 // Necesario para que funcionen hooks interactivos como useState o useEffect.
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import emailjs from '@emailjs/browser';
+
+// ==========================================
+// HOOK PERSONALIZADO: Scroll Reveal
+// ==========================================
+// Detecta cuando un elemento entra en el viewport para animarlo
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(ref.current!);
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, isVisible };
+}
+
+// ==========================================
+// COMPONENTE: Stats Counter (Contador Animado)
+// ==========================================
+function StatsCounter() {
+  const { ref, isVisible } = useScrollReveal();
+  const [counts, setCounts] = useState({ projects: 0, years: 0, clients: 0 });
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const duration = 2000;
+    const steps = 60;
+    const interval = duration / steps;
+
+    const targets = { projects: 15, years: 2, clients: 10 };
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      const easeOut = 1 - Math.pow(1 - progress, 4);
+
+      setCounts({
+        projects: Math.floor(targets.projects * easeOut),
+        years: Math.floor(targets.years * easeOut * 10) / 10,
+        clients: Math.floor(targets.clients * easeOut)
+      });
+
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [isVisible]);
+
+  return (
+    <section ref={ref} className={`py-16 px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ background: 'var(--background)' }}>
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Proyectos */}
+          <div className="text-center space-y-2">
+            <div className="text-5xl md:text-6xl font-bold" style={{ color: 'var(--accent)' }}>
+              {counts.projects}+
+            </div>
+            <p className="text-muted text-lg">Proyectos Completados</p>
+          </div>
+
+          {/* Años de Experiencia */}
+          <div className="text-center space-y-2">
+            <div className="text-5xl md:text-6xl font-bold" style={{ color: 'var(--accent)' }}>
+              {counts.years}+
+            </div>
+            <p className="text-muted text-lg">Años de Experiencia</p>
+          </div>
+
+          {/* Clientes Felices */}
+          <div className="text-center space-y-2">
+            <div className="text-5xl md:text-6xl font-bold" style={{ color: 'var(--accent)' }}>
+              {counts.clients}+
+            </div>
+            <p className="text-muted text-lg">Clientes Felices</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // ==========================================
 // SECCIÓN 1: ÍCONOS E INTERFAZ
@@ -102,6 +198,11 @@ const Icons = {
       <rect x="3" y="14" width="7" height="7" rx="1" />
       <rect x="14" y="14" width="7" height="7" rx="1" />
     </svg>
+  ),
+  WhatsApp: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+    </svg>
   )
 };
 
@@ -121,7 +222,8 @@ const portfolio = {
   location: "Bogotá, Colombia",
   social: {
     github: "https://github.com/JulianFVasquez1",
-    linkedin: "https://www.linkedin.com/in/julian-vasquez-ojeda", // Enlace directo a LinkedIn
+    linkedin: "https://www.linkedin.com/in/julian-vasquez-ojeda",
+    whatsapp: "https://wa.me/573004627891",
   },
 };
 
@@ -444,8 +546,8 @@ function Hero() {
               <p className="text-xs font-medium tracking-wider">{portfolio.roleSecondary.toUpperCase()}</p>
             </div>
 
-            <a href="public/CV/CV_Julian_Vasquez_Ojeda..pdf" download className="duration-300 hover:bg-[#0a1628] border border-transparent hover:border-accent hover:text-gray-50 bg-gray-50 font-semibold px-3 py-2 flex flex-row items-center gap-3 rounded-lg z-20 shadow-md" style={{ color: '#2f6becff' }}>
-              Download CV
+            <a href="/CV/CV_Julian_Vasquez_Ojeda..pdf" download className="duration-300 hover:bg-[#0a1628] border border-transparent hover:border-accent hover:text-gray-50 bg-gray-50 font-semibold px-3 py-2 flex flex-row items-center gap-3 rounded-lg z-20 shadow-md" style={{ color: '#2f6becff' }}>
+              Descargar CV
               <svg className="w-5 h-5 fill-current" height="100" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100" width="100" x="0" xmlns="http://www.w3.org/2000/svg" y="0">
                 <path d="M22.1,77.9a4,4,0,0,1,4-4H73.9a4,4,0,0,1,0,8H26.1A4,4,0,0,1,22.1,77.9ZM35.2,47.2a4,4,0,0,1,5.7,0L46,52.3V22.1a4,4,0,1,1,8,0V52.3l5.1-5.1a4,4,0,0,1,5.7,0,4,4,0,0,1,0,5.6l-12,12a3.9,3.9,0,0,1-5.6,0l-12-12A4,4,0,0,1,35.2,47.2Z" fillRule="evenodd"></path>
               </svg>
@@ -570,8 +672,9 @@ function Hero() {
 
 // 3.3 Experiencia Laboral y Educación (Mostrada como Timeline / Grid)
 function Experience() {
+  const { ref, isVisible } = useScrollReveal();
   return (
-    <section id="experience" className="py-20 px-6" style={{ background: 'var(--background)' }}>
+    <section ref={ref} id="experience" className={`py-20 px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ background: 'var(--background)' }}>
       <div className="max-w-5xl mx-auto space-y-16">
         <div className="space-y-4">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">Experiencia</h2>
@@ -647,6 +750,7 @@ function Experience() {
 
 // 3.4 Skills o Competencias Profesionales
 function Skills() {
+  const { ref, isVisible } = useScrollReveal();
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
@@ -687,7 +791,7 @@ function Skills() {
   };
 
   return (
-    <section id="skills" className="py-20 px-6 transition-colors duration-500" style={{ background: colors.sectionBg }}>
+    <section ref={ref} id="skills" className={`py-20 px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ background: colors.sectionBg }}>
       <div className="max-w-5xl mx-auto space-y-16">
         <div className="space-y-4 text-center max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight transition-colors duration-500" style={{ color: colors.titleColor }}>Competencias</h2>
@@ -725,6 +829,7 @@ function Skills() {
 
 // 3.5 Proyectos Destacados (Cards con Ícono Grande + Tilt 3D)
 function Projects() {
+  const { ref: scrollRef, isVisible } = useScrollReveal();
   const cardsContainerRef = useRef<HTMLDivElement>(null);
   const [isDark, setIsDark] = useState(true);
 
@@ -805,7 +910,7 @@ function Projects() {
   }, []);
 
   return (
-    <section id="projects" className="py-24 px-6 transition-colors duration-500" style={{ background: c.sectionBg }}>
+    <section ref={scrollRef} id="projects" className={`py-24 px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ background: c.sectionBg }}>
       <div className="max-w-6xl mx-auto">
 
         {/* Header con label PORTAFOLIO + Título */}
@@ -875,6 +980,7 @@ function Projects() {
 
 // 3.6 Contacto (Dark Elegance - Gold & Navy)
 function Contact() {
+  const { ref: scrollRef, isVisible } = useScrollReveal();
   const [isDark, setIsDark] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -906,11 +1012,29 @@ function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', message: '' });
-    setTimeout(() => setSubmitted(false), 5000);
+
+    try {
+      await emailjs.send(
+        'service_zasgvy9',
+        'template_rnap1jb',
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          name: formData.name,
+          message: formData.message
+        },
+        'bs0zxV5eQRzPiocqw'
+      );
+
+      setSubmitted(true);
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (error) {
+      console.error('Error al enviar el mensaje:', error);
+      alert('Hubo un error al enviar el mensaje. Por favor intenta de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Colores para modo dark y light
@@ -947,7 +1071,7 @@ function Contact() {
   };
 
   return (
-    <section id="contact" className="py-24 px-6 relative overflow-hidden transition-colors duration-500" style={{ background: colors.bg }}>
+    <section ref={scrollRef} id="contact" className={`py-24 px-6 relative overflow-hidden transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ background: colors.bg }}>
       {/* Grain texture overlay - solo en dark mode */}
       {isDark && (
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
@@ -1002,9 +1126,16 @@ function Contact() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wider mb-1 transition-colors duration-500" style={{ color: isDark ? '#FCA311' : '#b87608', opacity: 0.8 }}>Teléfono</p>
-                  <a href={`tel:${portfolio.phone}`} className="text-base hover:text-[#FCA311] transition-colors duration-300" style={{ color: colors.textMuted }}>
-                    {portfolio.phone}
-                  </a>
+                  <div className="flex flex-col gap-2">
+                    <a href={`tel:${portfolio.phone}`} className="text-base hover:text-[#FCA311] transition-colors duration-300" style={{ color: colors.textMuted }}>
+                      {portfolio.phone}
+                    </a>
+                    <a href={portfolio.social.whatsapp} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-green-500 hover:text-green-400 transition-colors duration-300 font-medium">
+                      <Icons.WhatsApp />
+                      <span>Chat en WhatsApp</span>
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -1046,6 +1177,15 @@ function Contact() {
                     color: isDark ? '#E5E5E5' : '#495057'
                   }}>
                   <Icons.LinkedIn />
+                </a>
+                <a href={portfolio.social.whatsapp} target="_blank" rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-500 hover:scale-110 hover:-translate-y-1"
+                  style={{
+                    background: colors.accentBg,
+                    border: `1px solid ${isDark ? 'rgba(252, 163, 17, 0.2)' : 'rgba(252, 163, 17, 0.3)'}`,
+                    color: isDark ? '#E5E5E5' : '#495057'
+                  }}>
+                  <Icons.WhatsApp />
                 </a>
               </div>
             </div>
@@ -1391,6 +1531,7 @@ export default function Home() {
       {/* Contenido general encapsulado por tag 'main' de HTML semántico */}
       <main>
         <Hero />         {/* Portada */}
+        <StatsCounter /> {/* Estadísticas abstractas (Años exp., clientes) */}
         <Skills />       {/* Competencias Técnicas */}
         <Projects />     {/* Cards interactivas (Trabajos extras) */}
         <Contact />      {/* Tarjeta inferior final */}
