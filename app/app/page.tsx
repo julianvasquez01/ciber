@@ -444,7 +444,7 @@ function Hero() {
               <p className="text-xs font-medium tracking-wider">{portfolio.roleSecondary.toUpperCase()}</p>
             </div>
 
-            <a href="/CV/Julian_Vasquez_CV.pdf" download className="duration-300 hover:bg-[#0a1628] border border-transparent hover:border-accent hover:text-gray-50 bg-gray-50 font-semibold px-3 py-2 flex flex-row items-center gap-3 rounded-lg z-20 shadow-md" style={{ color: '#2f6becff' }}>
+            <a href="public/CV/CV_Julian_Vasquez_Ojeda..pdf" download className="duration-300 hover:bg-[#0a1628] border border-transparent hover:border-accent hover:text-gray-50 bg-gray-50 font-semibold px-3 py-2 flex flex-row items-center gap-3 rounded-lg z-20 shadow-md" style={{ color: '#2f6becff' }}>
               Download CV
               <svg className="w-5 h-5 fill-current" height="100" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100" width="100" x="0" xmlns="http://www.w3.org/2000/svg" y="0">
                 <path d="M22.1,77.9a4,4,0,0,1,4-4H73.9a4,4,0,0,1,0,8H26.1A4,4,0,0,1,22.1,77.9ZM35.2,47.2a4,4,0,0,1,5.7,0L46,52.3V22.1a4,4,0,1,1,8,0V52.3l5.1-5.1a4,4,0,0,1,5.7,0,4,4,0,0,1,0,5.6l-12,12a3.9,3.9,0,0,1-5.6,0l-12-12A4,4,0,0,1,35.2,47.2Z" fillRule="evenodd"></path>
